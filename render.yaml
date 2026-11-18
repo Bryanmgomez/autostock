@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: autostock
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build && cd server && npm install
+    startCommand: cd server && node index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /data/autostock.db
+    disk:
+      name: autostock-data
+      mountPath: /data
+      sizeGB: 1
