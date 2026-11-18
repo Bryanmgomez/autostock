@@ -1,68 +1,84 @@
 # AutoStock — Sistema de gestión para papelería y variedades
 
-Aplicación web completa (React + TypeScript + Vite + Tailwind CSS) para administrar
-inventario, ventas, clientes, facturación, caja, créditos y reportes. **No utiliza
-base de datos**: toda la información se almacena en el navegador mediante
-`localStorage` (JSON), por lo que persiste al cerrar y volver a abrir la app.
+Aplicación web completa (React + TypeScript + Vite + Tailwind CSS) con backend
+Node.js + Express + SQLite (better-sqlite3) para administrar inventario, ventas,
+clientes, facturación, caja, créditos y reportes.
 
 ## Requisitos
 
-- Node.js 18 o superior (probado con v24)
+- Node.js 18 o superior
 - npm 9 o superior
-- Navegador moderno (Chrome, Edge, Firefox)
+- Navegador moderno
 
-## Instalación y ejecución (desarrollo)
+## Instalación
+
+```bash
+# Frontend
+cd ppi
+npm install
+
+# Backend
+cd server
+npm install
+```
+
+## Ejecución (desarrollo)
+
+En dos terminales:
+
+```bash
+# Terminal 1 - Backend
+cd ppi/server
+npm run dev        # http://localhost:4000
+```
+
+```bash
+# Terminal 2 - Frontend
+cd ppi
+npm run dev        # http://localhost:5173/autostock/
+```
+
+## Credenciales demo
+
+- Gerente: `gerente` / `gerente123` (acceso completo)
+- Cajero: `cajero` / `cajero123` (solo ventas y caja)
+
+## Compilar frontend (producción)
 
 ```bash
 cd ppi
-npm install
-npm run dev
-```
-
-Abrir en el navegador: http://localhost:5173
-
-## Compilar versión final (producción)
-
-```bash
 npm run build
-npm run preview
+npm run preview    # sirve dist con proxy a la API
 ```
 
-La carpeta `dist/` contiene la aplicación lista para desplegar en cualquier
-hosting estático (Netlify, Vercel, GitHub Pages) o abrir con un servidor local.
+La carpeta `dist/` contiene el frontend listo para desplegar.
 
-## Estructura del proyecto
+## Arquitectura
 
 ```
-src/
-  components/   Layout, Modal
-  lib/          storage, types, seed, store (contexto global)
-  pages/        Dashboard, Inventory, Sales, Customers, Invoices, Cash, Credits, Reports
+ppi/
+  src/          Frontend React
+  server/       Backend Express + SQLite (autostock.db)
 ```
 
-## Datos de demostración
+## Persistencia
 
-Al ejecutar por primera vez se crean automáticamente productos, clientes, una
-apertura de caja y datos de ejemplo. Para restablecer los datos demo, abrir la
-consola del navegador y ejecutar:
+Los datos se guardan en `server/autostock.db` (SQLite). No se pierden al reiniciar.
 
-```js
-localStorage.clear();
-location.reload();
-```
+Para restablecer los datos demo, detén el backend y elimina `server/autostock.db`, luego reinicia.
 
 ## Módulos
 
-1. Panel principal: indicadores, gráficas, alertas de stock bajo.
-2. Inventario: CRUD, búsqueda, filtro por categoría, alertas.
-3. Ventas: carrito, descuentos, métodos de pago, descuento de stock.
-4. Clientes: CRUD con validación.
-5. Facturación: comprobante imprimible por venta.
-6. Caja: ingresos/egresos, saldo.
-7. Créditos: ventas a crédito, abonos, historial.
-8. Reportes: top productos, métodos de pago, categorías, ticket promedio.
+1. Panel principal (gerente): indicadores, gráficas, alertas de stock bajo.
+2. Inventario (gerente): CRUD, IVA por producto, stock mínimo.
+3. Ventas: carrito, descuentos por línea y global, IVA automático, pago, cambio, faltante, crédito.
+4. Clientes: búsqueda por nombre/apellido/documento, validaciones, sin duplicados.
+5. Facturación: comprobante imprimible.
+6. Caja: apertura/cierre, ingresos/egresos, saldo esperado, sobrantes/faltantes, historial.
+7. Créditos: ventas a crédito, abonos, deuda pendiente.
+8. Reportes (gerente): ventas, IVA, descuentos, top productos, ganancias, movimientos de caja.
 
-## Notas
+## Roles
 
-- Sin conexión a base de datos ni servicios externos.
-- Los datos se guardan en `localStorage` del navegador del equipo donde se ejecuta.
+- **Gerente**: acceso completo, administra usuarios, configuración, reportes.
+- **Cajero**: solo ventas y caja. Los permisos se validan en backend (JWT + middleware).

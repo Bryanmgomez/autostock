@@ -23,14 +23,18 @@ export default function Inventory() {
 
   function openNew() { setEditing(null); setForm(empty); setOpen(true); }
   function openEdit(p: any) { setEditing(p.id); setForm({ ...p }); setOpen(true); }
-  function save() {
+  async function save() {
     if (!form.name.trim()) { alert("El nombre es obligatorio"); return; }
-    if (editing) updateProduct({ ...form, id: editing, createdAt: products.find((p) => p.id === editing)!.createdAt });
-    else addProduct(form);
-    setOpen(false);
+    try {
+      if (editing) await updateProduct({ ...form, id: editing });
+      else await addProduct(form);
+      setOpen(false);
+    } catch (e: any) { alert(e.message); }
   }
-  function remove(id: string) {
-    if (confirm("¿Eliminar este producto?")) deleteProduct(id);
+  async function remove(id: string) {
+    if (confirm("¿Eliminar este producto?")) {
+      try { await deleteProduct(id); } catch (e: any) { alert(e.message); }
+    }
   }
 
   return (

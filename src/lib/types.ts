@@ -14,6 +14,8 @@ export interface Product {
 export interface Customer {
   id: string;
   name: string;
+  lastName?: string;
+  docType?: string;
   document: string;
   phone: string;
   email: string;

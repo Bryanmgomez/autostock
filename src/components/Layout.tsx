@@ -1,25 +1,28 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import { useAuth } from "../lib/auth";
 import {
-  LayoutDashboard, Package, ShoppingCart, Users, Receipt, Wallet, CreditCard, BarChart3, Menu, Store,
+  LayoutDashboard, Package, ShoppingCart, Users, Receipt, Wallet, CreditCard, BarChart3, Menu, Store, LogOut,
 } from "lucide-react";
 
 const nav = [
-  { to: "/", label: "Panel principal", icon: LayoutDashboard, end: true },
-  { to: "/inventory", label: "Inventario", icon: Package },
-  { to: "/sales", label: "Ventas", icon: ShoppingCart },
-  { to: "/customers", label: "Clientes", icon: Users },
-  { to: "/invoices", label: "Facturación", icon: Receipt },
-  { to: "/cash", label: "Caja", icon: Wallet },
-  { to: "/credits", label: "Créditos", icon: CreditCard },
-  { to: "/reports", label: "Reportes", icon: BarChart3 },
+  { to: "/", label: "Panel principal", icon: LayoutDashboard, end: true, roles: ["gerente"] },
+  { to: "/inventory", label: "Inventario", icon: Package, roles: ["gerente"] },
+  { to: "/sales", label: "Ventas", icon: ShoppingCart, roles: ["gerente","cajero"] },
+  { to: "/customers", label: "Clientes", icon: Users, roles: ["gerente","cajero"] },
+  { to: "/invoices", label: "Facturación", icon: Receipt, roles: ["gerente","cajero"] },
+  { to: "/cash", label: "Caja", icon: Wallet, roles: ["gerente","cajero"] },
+  { to: "/credits", label: "Créditos", icon: CreditCard, roles: ["gerente","cajero"] },
+  { to: "/reports", label: "Reportes", icon: BarChart3, roles: ["gerente"] },
 ];
 
 export default function Layout() {
+  const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const role = user?.role || "cajero";
+  const items = nav.filter((n) => n.roles.includes(role));
   return (
     <div className="min-h-screen flex">
-      {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-100 transform transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"} md:static md:transform-none`}>
         <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-800">
           <div className="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center">
@@ -31,7 +34,7 @@ export default function Layout() {
           </div>
         </div>
         <nav className="p-3 space-y-1">
-          {nav.map((n) => (
+          {items.map((n) => (
             <NavLink
               key={n.to}
               to={n.to}
@@ -48,8 +51,12 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-4 text-xs text-slate-500 border-t border-slate-800">
-          © 2026 Tecnológico de Antioquia
+        <div className="absolute bottom-0 left-0 right-0 p-4 text-xs text-slate-400 border-t border-slate-800 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="truncate">{user?.name}</span>
+            <button onClick={logout} className="text-slate-400 hover:text-white" title="Salir"><LogOut size={16} /></button>
+          </div>
+          <div>{user?.role}</div>
         </div>
       </aside>
 
@@ -62,7 +69,7 @@ export default function Layout() {
           </button>
           <div className="font-semibold text-slate-700 hidden md:block">Sistema de gestión AutoStock</div>
           <div className="flex items-center gap-2 text-sm text-slate-500">
-            <span className="hidden sm:inline">Almacenamiento local</span>
+            <span className="hidden sm:inline">API conectada</span>
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
           </div>
         </header>
