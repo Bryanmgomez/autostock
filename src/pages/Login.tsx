@@ -42,7 +42,7 @@ export default function Login() {
           <button className="btn-primary w-full" disabled={loading}>{loading ? "Ingresando..." : "Ingresar"}</button>
         </form>
         <div className="mt-4 text-xs text-slate-400">
-          Demo: gerente / gerente123 · cajero / cajero123
+          Demo: gerente / 12345 · cajero / 54321
         </div>
       </div>
     </div>

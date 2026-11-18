@@ -112,9 +112,9 @@ function init() {
     const now = new Date().toISOString();
     const hash = (p) => bcrypt.hashSync(p, 10);
     db.prepare("INSERT INTO users (id,username,password_hash,role,name,created_at) VALUES (?,?,?,?,?,?)")
-      .run(uid(), "gerente", hash("gerente123"), "gerente", "Gerente General", now);
+      .run(uid(), "gerente", hash("12345"), "gerente", "Gerente General", now);
     db.prepare("INSERT INTO users (id,username,password_hash,role,name,created_at) VALUES (?,?,?,?,?,?)")
-      .run(uid(), "cajero", hash("cajero123"), "cajero", "Cajero Principal", now);
+      .run(uid(), "cajero", hash("54321"), "cajero", "Cajero Principal", now);
 
     const products = [
       ["Cuaderno 100 hojas","CUA-100","Papelería",8500,5200,19,45,10,"Cuaderno cuadriculado 100 hojas"],
