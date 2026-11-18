@@ -92,16 +92,16 @@ export default function Customers() {
 
       <Modal open={open} onClose={() => setOpen(false)} title={editing ? "Editar cliente" : "Nuevo cliente"}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div><label className="label">Nombre *</label><input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-          <div><label className="label">Apellido</label><input className="input" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} /></div>
+          <div><label className="label">Nombre *</label><input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "") })} /></div>
+          <div><label className="label">Apellido</label><input className="input" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "") })} /></div>
           <div><label className="label">Tipo de documento</label>
             <select className="input" value={form.docType} onChange={(e) => setForm({ ...form, docType: e.target.value })}>
               {DOC_TYPES.map((d) => <option key={d}>{d}</option>)}
             </select>
           </div>
-          <div><label className="label">Número de documento *</label><input className="input" value={form.document} onChange={(e) => setForm({ ...form, document: e.target.value })} /></div>
-          <div><label className="label">Teléfono</label><input className="input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
-          <div><label className="label">Email</label><input className="input" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+          <div><label className="label">Número de documento *</label><input className="input" value={form.document} onChange={(e) => setForm({ ...form, document: e.target.value.replace(/\D/g, "") })} /></div>
+          <div><label className="label">Teléfono</label><input className="input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })} /></div>
+          <div><label className="label">Email</label><input className="input" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value.replace(/[^a-zA-Z0-9@._+\-]/g, "") })} /></div>
           <div className="sm:col-span-2"><label className="label">Dirección</label><input className="input" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
         </div>
         <div className="flex justify-end gap-2 mt-5">

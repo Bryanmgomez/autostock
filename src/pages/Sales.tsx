@@ -8,6 +8,8 @@ interface CartItem { productId: string; name: string; price: number; iva: number
 export default function Sales() {
   const { products, customers, addSale } = useStore();
   const [customerId, setCustomerId] = useState<string>("");
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [showCustomer, setShowCustomer] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [prodSearch, setProdSearch] = useState("");
   const [discount, setDiscount] = useState(0);
@@ -139,12 +141,27 @@ export default function Sales() {
 
         <div className="space-y-4">
           <div className="card-pad space-y-4">
-            <div>
-              <label className="label">Cliente</label>
-              <select className="input" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
-                <option value="">Cliente general</option>
-                {customers.map((c: any) => <option key={c.id} value={c.id}>{c.name} {c.lastName || ""}</option>)}
-              </select>
+            <div className="relative">
+              <label className="label">Cliente (buscar)</label>
+              <input className="input" placeholder="Buscar por nombre, apellido o documento..."
+                value={customerId ? (customers.find((c:any)=>c.id===customerId)?.name + " " + (customers.find((c:any)=>c.id===customerId)?.lastName||"")) : customerSearch}
+                onChange={(e) => { setCustomerId(""); setCustomerSearch(e.target.value); setShowCustomer(true); }}
+                onFocus={() => setShowCustomer(true)} />
+              {showCustomer && (
+                <div className="absolute z-10 mt-1 w-full max-h-48 overflow-auto border border-slate-200 rounded-lg bg-white shadow">
+                  <button className="w-full text-left px-3 py-2 hover:bg-slate-50 text-sm" onClick={() => { setCustomerId(""); setCustomerSearch(""); setShowCustomer(false); }}>
+                    Cliente general
+                  </button>
+                  {customers.filter((c:any) => {
+                    const q = customerSearch.toLowerCase();
+                    return !q || `${c.name} ${c.lastName||""} ${c.document}`.toLowerCase().includes(q);
+                  }).map((c:any) => (
+                    <button key={c.id} className="w-full text-left px-3 py-2 hover:bg-slate-50 text-sm border-t border-slate-100" onClick={() => { setCustomerId(c.id); setCustomerSearch(""); setShowCustomer(false); }}>
+                      {c.name} {c.lastName || ""} <span className="text-slate-400 text-xs">({c.document})</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
               <label className="label">Método de pago</label>
