@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import QRCode from "qrcode";
 import { useStore } from "../lib/store";
 import { money } from "../lib/storage";
 import { Plus, Trash2, Search, ShoppingCart } from "lucide-react";
@@ -18,6 +19,12 @@ export default function Sales() {
   const [notes, setNotes] = useState("");
   const [showProd, setShowProd] = useState(false);
   const [lastSale, setLastSale] = useState<any>(null);
+  const [qrSale, setQrSale] = useState<string>("");
+  useEffect(() => {
+    if (!lastSale) { setQrSale(""); return; }
+    const text = `AutoStock Factura ${String(lastSale.id).slice(-6).toUpperCase()} | Total: ${lastSale.total} | Fecha: ${lastSale.date}`;
+    QRCode.toDataURL(text, { width: 160, margin: 1 }).then(setQrSale).catch(() => setQrSale(""));
+  }, [lastSale]);
   const [submitting, setSubmitting] = useState(false);
 
   const customer = customers.find((c: any) => c.id === customerId);
@@ -206,12 +213,16 @@ export default function Sales() {
 
       {lastSale && (
         <div className="card-pad bg-emerald-50 border-emerald-200">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <div className="font-semibold text-emerald-800">Venta registrada correctamente</div>
               <div className="text-sm text-emerald-700">Total: {money(lastSale.total)} · ID: {String(lastSale.id).slice(-6)}</div>
+              {qrSale && <img src={qrSale} alt="QR de la compra" className="mt-2 border border-slate-200 rounded" />}
             </div>
-            <button className="btn-secondary" onClick={() => setLastSale(null)}>Cerrar</button>
+            <div className="flex gap-2">
+              {qrSale && <a href={qrSale} download={`venta-${String(lastSale.id).slice(-6)}.png`} className="btn-secondary">Descargar QR</a>}
+              <button className="btn-secondary" onClick={() => setLastSale(null)}>Cerrar</button>
+            </div>
           </div>
         </div>
       )}

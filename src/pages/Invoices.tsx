@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import QRCode from "qrcode";
 import { useStore } from "../lib/store";
 import { money, formatDate } from "../lib/storage";
 import { Eye, Printer } from "lucide-react";
@@ -7,6 +8,13 @@ import Modal from "../components/Modal";
 export default function Invoices() {
   const { sales } = useStore();
   const [selected, setSelected] = useState<any>(null);
+  const [qr, setQr] = useState<string>("");
+
+  useEffect(() => {
+    if (!selected) { setQr(""); return; }
+    const text = `AutoStock Factura ${selected.id.slice(-6).toUpperCase()} | Cliente: ${selected.customerName || "Cliente general"} | Total: ${selected.total} | Fecha: ${selected.date}`;
+    QRCode.toDataURL(text, { width: 180, margin: 1 }).then(setQr).catch(() => setQr(""));
+  }, [selected]);
 
   function printInvoice() {
     window.print();
@@ -82,6 +90,12 @@ export default function Invoices() {
                 <div className="flex justify-end gap-8 font-bold text-lg"><span>Total</span><span className="text-brand-600">{money(selected.total)}</span></div>
               </div>
               {selected.notes && <div className="text-xs text-slate-500 mt-2">Notas: {selected.notes}</div>}
+              {qr && (
+                <div className="flex flex-col items-center mt-4 gap-2">
+                  <img src={qr} alt="QR de la compra" className="border border-slate-200 rounded" />
+                  <a href={qr} download={`factura-${selected.id.slice(-6)}.png`} className="btn-secondary !px-2 !py-1 text-xs">Descargar QR</a>
+                </div>
+              )}
               <div className="text-center text-xs text-slate-400 mt-4">Gracias por su compra</div>
             </div>
             <div className="flex justify-end gap-2 mt-5 no-print">
