@@ -63,5 +63,16 @@ app.get("/api/reports/summary", authMiddleware, (req, res) => {
   res.json({ totalSales: sales.length, totalRevenue, cashSales, creditSales, discounts, iva, topProducts, cashIn, cashOut, profit, discrepancies });
 });
 
+const path = require("path");
+// Serve frontend build
+app.use("/assets", express.static(path.join(__dirname, "..", "dist", "assets")));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
+});
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api")) return next();
+  res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
+});
+
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`AutoStock API running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`AutoStock running on http://localhost:${PORT}`));
