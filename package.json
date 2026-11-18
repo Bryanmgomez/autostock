@@ -10,7 +10,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "start": "node server/index.js",
-    "build:all": "npm run build && cd server && npm install"
+    "build:all": "npm run build && cd server && npm install",
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
     "clsx": "^2.1.1",

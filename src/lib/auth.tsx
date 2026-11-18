@@ -1,36 +1,46 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { api, setToken, getToken } from "./api";
 
 interface AuthUser { id: string; username: string; role: "gerente" | "cajero"; name: string; }
-interface AuthValue {
-  user: AuthUser | null;
-  loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
-}
+interface AuthValue { user: AuthUser | null; loading: boolean; login: (u: string, p: string) => Promise<void>; logout: () => void; }
+
+const USERS_KEY = "autostock_users";
+const TOKEN_KEY = "autostock_token";
 
 const Ctx = createContext<AuthValue | null>(null);
+
+function seedUsers() {
+  if (localStorage.getItem(USERS_KEY)) return;
+  const now = new Date().toISOString();
+  const users = [
+    { id: "u1", username: "gerente", password: "12345", role: "gerente", name: "Gerente General", createdAt: now },
+    { id: "u2", username: "cajero", password: "54321", role: "cajero", name: "Cajero Principal", createdAt: now },
+  ];
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-
+  seedUsers();
   useEffect(() => {
-    const t = getToken();
-    if (!t) { setLoading(false); return; }
-    api("/auth/me").then((r: any) => setUser(r.user)).catch(() => { setToken(null); setUser(null); }).finally(() => setLoading(false));
+    const raw = localStorage.getItem(TOKEN_KEY);
+    if (raw) {
+      try { setUser(JSON.parse(raw)); } catch { localStorage.removeItem(TOKEN_KEY); }
+    }
+    setLoading(false);
   }, []);
-
   async function login(username: string, password: string) {
-    const r: any = await api("/auth/login", { method: "POST", body: JSON.stringify({ username, password }) });
-    setToken(r.token);
-    setUser(r.user);
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+    const u = users.find((x: any) => x.username === username && x.password === password);
+    if (!u) throw new Error("Credenciales inválidas");
+    const sess = { id: u.id, username: u.username, role: u.role, name: u.name };
+    localStorage.setItem(TOKEN_KEY, JSON.stringify(sess));
+    setUser(sess);
   }
   function logout() {
-    setToken(null);
+    localStorage.removeItem(TOKEN_KEY);
     setUser(null);
   }
-
   return <Ctx.Provider value={{ user, loading, login, logout }}>{children}</Ctx.Provider>;
 }
 
